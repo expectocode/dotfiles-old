@@ -1,6 +1,7 @@
 # dotfiles
 Configuration for my i3 rice
 
+![screenshot of my setup](/screenshot.png)
 ![screencast of my setup](/screencast.gif)
 
 Directory structure should be pretty self explanatory, you might want to read the i3 config carefully since it's quite messy.
