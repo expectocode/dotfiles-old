@@ -1,0 +1,12 @@
+# I use grml-zsh-config, and this is a file for my own little things
+function yplay {
+youtube-dl --default-search=ytsearch: \
+           --youtube-skip-dash-manifest \
+           --output="${TMPDIR:-/tmp/}%(title)-s%(id)s.%(ext)s" \
+           --restrict-filenames \
+           --format="bestaudio[ext!=webm]" \
+           --exec=mplayer -vvv "$*"
+}
+vidplay () {
+        youtube-dl --default-search=ytsearch: --youtube-skip-dash-manifest --output="${TMPDIR:-/tmp/}%(title)-s%(id)s.%(ext)s" --restrict-filenames --format="[ext!=webm]" --exec=gnome-mpv -vvv "$*"
+}
