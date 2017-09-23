@@ -1,0 +1,291 @@
+#put at start to make it look nice
+
+#exec sh ~/.fehbg --no-startup-id
+exec ~/Code/Python/golbg/gol.py
+#warning, if you log out this keeps running.
+
+# i3 config file (v4)
+#
+# Please see http://i3wm.org/docs/userguide.html for a complete reference!
+#
+# This config file uses keycodes (bindsym) and was written for the QWERTY
+# layout.
+#
+# To get a config file with the same key positions, but for your current
+# layout, use the i3-config-wizard
+#
+
+# Font for window titles. Will also be used by the bar unless a different font
+# is used in the bar {} block below.
+font pango: Source Sans Pro 10
+
+# Before i3 v4.8, we used to recommend this one as the default:
+# font -misc-fixed-medium-r-normal--13-120-75-75-C-70-iso10646-1
+# The font above is very space-efficient, that is, it looks good, sharp and
+# clear in small sizes. However, its unicode glyph coverage is limited, the old
+# X core fonts rendering does not support right-to-left and this being a bitmap
+# font, it doesn’t scale on retina/hidpi displays.
+
+# use these keys for focus, movement, and resize directions when reaching for
+# the arrows is not convenient
+set $up j
+set $down k
+set $left l
+set $right semicolon
+
+# use Mouse+Mod1 to drag floating windows to their wanted position
+floating_modifier Mod1
+
+# start a terminal
+bindsym Mod4+Return exec urxvt
+
+# kill focused window
+# bindsym Mod1+Shift+q kill
+bindsym Mod1+q kill
+
+bindsym Mod4+Shift+d exec --no-startup-id bash ~/scripts/rofi.sh
+
+# change focus
+bindsym Mod4+$left focus left
+bindsym Mod4+$down focus down
+bindsym Mod4+$up focus up
+bindsym Mod4+$right focus right
+bindsym Mod1+Tab focus right
+
+# alternatively, you can use the cursor keys:
+bindsym Mod4+Left focus left
+bindsym Mod4+Down focus down
+bindsym Mod4+Up focus up
+bindsym Mod4+Right focus right
+
+### move focused window
+
+#bindsym Mod4+Shift+$left move left
+#bindsym Mod4+Shift+$down move down
+#bindsym Mod4+Shift+$up move up
+#bindsym Mod4+Shift+$right move right
+
+# alternatively, you can use the cursor keys:
+bindsym Mod4+Shift+Left move left
+bindsym Mod4+Shift+Down move down
+bindsym Mod4+Shift+Up move up
+bindsym Mod4+Shift+Right move right
+
+# split in horizontal orientation
+bindsym Mod4+h split h
+
+# split in vertical orientation
+bindsym Mod4+v split v
+
+# enter fullscreen mode for the focused container
+bindsym Mod4+f fullscreen toggle
+
+# change container layout (stacked, tabbed, toggle split)
+bindsym Mod4+s layout stacking
+bindsym Mod4+w layout tabbed
+bindsym Mod4+e layout toggle split
+
+# toggle tiling / floating
+bindsym Mod4+Shift+space floating toggle
+
+# change focus between tiling / floating windows
+bindsym Mod4+space focus mode_toggle
+
+# focus the parent container
+bindsym Mod4+a focus parent
+
+# focus the child container
+#bindsym Mod4+d focus child
+
+# move the currently focused window to the scratchpad
+bindsym Mod4+Shift+minus move scratchpad
+
+# Show the next scratchpad window or hide the focused scratchpad window.
+# If there are multiple scratchpad windows, this command cycles through them.
+bindsym Mod4+minus scratchpad show
+
+# switch to workspace
+bindsym Mod4+1 workspace 1
+bindsym Mod4+2 workspace 2
+bindsym Mod4+3 workspace 3
+bindsym Mod4+4 workspace 4
+bindsym Mod4+5 workspace 5
+bindsym Mod4+6 workspace 6
+bindsym Mod4+7 workspace 7
+bindsym Mod4+8 workspace 8
+bindsym Mod4+9 workspace 9
+bindsym Mod4+0 workspace 10
+
+# move focused container to workspace
+bindsym Mod4+Shift+1 move container to workspace 1
+bindsym Mod4+Shift+2 move container to workspace 2
+bindsym Mod4+Shift+3 move container to workspace 3
+bindsym Mod4+Shift+4 move container to workspace 4
+bindsym Mod4+Shift+5 move container to workspace 5
+bindsym Mod4+Shift+6 move container to workspace 6
+bindsym Mod4+Shift+7 move container to workspace 7
+bindsym Mod4+Shift+8 move container to workspace 8
+bindsym Mod4+Shift+9 move container to workspace 9
+bindsym Mod4+Shift+0 move container to workspace 10
+
+bindsym KP_Right exec bash ~/scripts/wsup1.sh
+bindsym Ctrl+KP_Right exec bash ~/scripts/wspluswinup1.sh
+bindsym KP_Left exec bash ~/scripts/wsdown1.sh
+bindsym Ctrl+KP_Left exec bash ~/scripts/wspluswindown1.sh
+
+# reload the configuration file
+bindsym Mod4+Shift+c reload
+# restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
+bindsym Mod4+Shift+r restart
+# exit i3 (logs you out of your X session)
+bindsym Mod4+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -b 'Yes, exit i3' 'i3-msg exit'"
+
+# resize window (you can also use the mouse for that)
+mode "resize" {
+# These bindings trigger as soon as you enter the resize mode
+
+# Pressing left will shrink the window’s width.
+# Pressing right will grow the window’s width.
+# Pressing up will shrink the window’s height.
+# Pressing down will grow the window’s height.
+	bindsym $left       resize shrink width 5 px or 5 ppt
+		bindsym $down       resize grow height 5 px or 5 ppt
+		bindsym $up         resize shrink height 5 px or 5 ppt
+		bindsym $right      resize grow width 5 px or 5 ppt
+
+# same bindings, but for the arrow keys
+		bindsym Left        resize shrink width 5 px or 5 ppt
+		bindsym Down        resize grow height 5 px or 5 ppt
+		bindsym Up          resize shrink height 5 px or 5 ppt
+		bindsym Right       resize grow width 5 px or 5 ppt
+
+# back to normal: Enter or Escape
+		bindsym Return mode "default"
+		bindsym Escape mode "default"
+}
+
+bindsym Mod4+r mode "resize"
+
+exec ~/scripts/lemonbar/unifiedparts 2>/dev/null
+
+#######################################################################
+# automatically start i3-config-wizard to offer the user to create a
+# keysym-based config which used their favorite modifier (alt or windows)
+#
+# i3-config-wizard will not launch if there already is a config file
+# in ~/.i3/config.
+#
+# Please remove the following exec line:
+#######################################################################
+#exec i3-config-wizard
+
+bindsym Mod4+Shift+b exec firefox
+bindsym Mod4+Shift+a exec qutebrowser
+bindsym Mod4+Shift+t exec bash ~/scripts/tg-desktop.sh
+bindsym Mod4+Shift+n exec urxvt -e ncmpcpp
+bindsym Mod1+l exec "urxvt -geometry 1x1 -title 'texttoimagelauncher' -e sh -c ' nohup ~/scripts/show_windows.py'"
+bindsym Mod4+t exec "bash ~/scripts/multipause.sh"
+bindsym Mod4+period exec mpc next
+bindsym Mod4+comma exec mpc prev
+bindsym Mod4+Shift+h exec thunar
+bindsym Mod4+n exec sh ~/scripts/lock.sh
+bindsym Mod1+x exec xfce4-screenshooter
+
+#exec setxkbmap -layout dvorak
+exec setxkbmap -option ctrl:nocaps
+exec xcape -e 'Control_L=Escape'
+exec xset -b
+#bindsym Print exec sh ~/scripts/websitescreenshot.sh
+bindsym Print exec xfce4-screenshooter -f -s Pictures/
+
+#workspace up and down
+bindsym Mod1+Ctrl+Left exec sh ~/scripts/wsdown1.sh
+bindsym Mod1+Ctrl+Right exec sh ~/scripts/wsup1.sh
+
+# volume controls
+bindsym XF86AudioRaiseVolume exec sh ~/scripts/volup.sh
+bindsym XF86AudioLowerVolume exec sh ~/scripts/voldown.sh
+bindsym XF86AudioPlay exec ~/scripts/mprispause.py
+bindsym XF86Mail exec "urxvt -geometry 1x1 -title 'texttoimagelauncher' -e sh -c ' nohup ~/scripts/show_windows.py'"
+bindsym XF86AudioStop exec ~/scripts/pauseandlock.py
+bindsym XF86Sleep exec "systemctl suspend"
+bindsym XF86AudioMute exec sh ~/scripts/mute.sh
+bindsym Mod1+v exec bash ~/scripts/notifyvolume.sh
+exec ~/usr/libexec/kdeconnectd
+
+bindsym Mod4+d exec bash -c '~/Code/scripts/typeunicodestarter.sh'
+bindsym Menu exec bash -c '~/Code/scripts/typeunicodestarter.sh'
+
+# class                 border  backgr. text    indicator
+client.focused          #3498db #3498db #e0e0e0 #f1c40f
+client.focused_inactive #1abc9c #1abc9c #c9cfdd #f1c40f
+client.unfocused        #95a5a6 #95a5a6 #ecf0f1 #f1c40f
+client.urgent           #e74c3c #e74c3c #fafafa #e74c3c
+client.placeholder      #000000 #0c0c0c #fafafa #f1c40f
+
+exec compton -f
+exec bash ~/scripts/lowbattery.sh
+
+exec mpd
+
+################################
+######## I3-GAPS CONFIG ########
+################################
+new_window pixel 8
+new_float pixel 8
+
+#for_window [class="^.*"] border pixel 8
+
+for_window [class="^.*"] border pixel 8
+for_window [title=".*texttoimage.*"] floating enable
+for_window [title=".*texttoimage.*"] border pixel 2
+
+#smart_borders on|no_gaps
+smart_borders on
+
+smart_gaps on
+
+set $mode_gaps Gaps: (o) outer, (i) inner
+set $mode_gaps_outer Outer Gaps: +|-|0 (local), Shift + +|-|0 (global)
+set $mode_gaps_inner Inner Gaps: +|-|0 (local), Shift + +|-|0 (global)
+bindsym Mod4+Shift+g mode "$mode_gaps"
+
+bindsym Mod1+g exec bash ~/scripts/togglegaps.sh
+
+exec '$gaps = 0'
+
+mode "$mode_gaps" {
+        bindsym o      mode "$mode_gaps_outer"
+        bindsym i      mode "$mode_gaps_inner"
+        bindsym Return mode "default"
+        bindsym Escape mode "default"
+}
+
+mode "$mode_gaps_inner" {
+        bindsym plus  gaps inner current plus 5
+        bindsym plus  exec '$gaps = $gaps + 5;echo $gaps > ~/gaps'
+        bindsym minus gaps inner current minus 5
+        bindsym 0     gaps inner current set 0
+
+        bindsym Shift+plus  gaps inner all plus 5
+        bindsym Shift+minus gaps inner all minus 5
+        bindsym plus  exec '$gaps = $gaps + 5;echo $gaps > ~/gaps'
+        bindsym Shift+0     gaps inner all set 0
+
+        bindsym Return mode "default"
+        bindsym Escape mode "default"
+}
+mode "$mode_gaps_outer" {
+        bindsym plus  gaps outer current plus 5
+        bindsym minus gaps outer current minus 5
+        bindsym 0     gaps outer current set 0
+
+        bindsym Shift+plus  gaps outer all plus 5
+        bindsym Shift+minus gaps outer all minus 5
+        bindsym Shift+0     gaps outer all set 0
+
+        bindsym Return mode "default"
+        bindsym Escape mode "default"
+}
+gaps inner 15
+gaps outer 6

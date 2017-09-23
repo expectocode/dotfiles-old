@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+#uses a bunch of variables defined in setup file to run every half second and give their output to lemonbar.
+source ~/scripts/lemonbar/setup
+
+echo $$ > /tmp/lemonleftpid
+
+while true; do
+	# echo $! > pid
+#        echo "%{U#000000}%{B$COLOR_HIGHLIGHT F$COLOR_TEXT_HIGHLIGHT}$(power)%{B- F-}$(player)%{c}$(music)%{r}$(volume)$(battery)$(network)%{B$COLOR_HIGHLIGHT F$COLOR_TEXT_HIGHLIGHT}$(clock)%{B- F-}$(workspace)"
+#        echo "%{U#000000}%{F$COLOR_TEXT_HIGHLIGHT}$(spotifyskroll)"
+song=$(music)
+
+#before="%{U#000000}%{B$COLOR_HIGHLIGHT F$COLOR_TEXT_HIGHLIGHT}%{B- F-}$(player)  "
+before="%{U#000000}$(smallerplayer)%{B$COLOR_HIGHLIGHT F$COLOR_TEXT_HIGHLIGHT} "
+#after=" %{F-i}%{r}%{r}$(network)$(battery)$(clock)%{B$COLOR_HIGHLIGHT F$COLOR_TEXT_HIGHLIGHT}$(workspace)%{B-F-}"
+after=" %{F-}%{r}$(clock) $(battery)%{B$COLOR_HIGHLIGHT F$COLOR_TEXT_HIGHLIGHT}$(workspace)%{B-F-}"
+
+if [ ${#song} -lt $scroll_length ]; then #if the songname length is less than the scroll threshold
+	spaces=$(~/scripts/lemonbar/spacesforscroller.py "$song" "$scroll_length")
+	#why doesn't this work??? oh it was because lemonbar (or something) strips spaces. changed space character used to figure space.
+	echo %{S1}$before$spaces$spaces$song$after%{lS0}$before$spaces$song$after
+else
+	echo $song | scroller -i 0.14 -c ${#song} -op -b "$before   " -a "$after" -l $scroll_length -s "    "
+	#this means i output a bunch of stuff before scrolled text then a bunch of stuff after scrolled text
+fi
+    sleep 0.5s
+done |
+
+lemonbar -p\
+    -b \
+	-g x$PANEL_HEIGHT\
+    -B "$COLOR_BACKGROUND"\
+    -F "$COLOR_FOREGROUND"\
+    -u 4\
+    -U "#000000"\
+    -f "$PANEL_FONT_FAMILY"\
+    -f "$ICON_FONT" | bash

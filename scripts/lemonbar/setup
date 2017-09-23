@@ -1,0 +1,244 @@
+#!/usr/bin/bash
+
+#taken and adapted from https://github.com/Marcel-Robitaille/dotfiles
+
+PANEL_FIFO=/tmp/panel-fifo
+PANEL_HEIGHT=22
+PANEL_FONT_FAMILY="Hack-7.8"
+ICON_FONT="MaterialIcons-10"
+COLOR_BACKGROUND="#bf2c3e50"  # AARRGGBB
+COLOR_FOREGROUND="#3498db"    # RRGGBB
+COLOR_HIGHLIGHT=$COLOR_BACKGROUND
+COLOR_TEXT_HIGHLIGHT="#e0e0e0"
+scroll_length=80
+spot_scroll_length=150
+UPDATE="~/scripts/lemonbar/update"
+
+#stuff for 3 part (mpd version)
+left_width=
+
+if [ $(pgrep -c panel) != 0 ] ; then
+	printf "%s\n" "The panel is already running." >&2
+	exit 1
+fi
+
+trap 'trap - TERM; kill 0' INT TERM QUIT EXIT
+
+# Clock
+clock(){
+	echo -e ' \uE192' $(date +'%l:%M %P') ''
+}
+
+# Clock
+cleanclock(){
+	echo -e $(date +'%l:%M %P')''
+}
+
+# Battery
+battery(){
+	lvl=$(cat /sys/class/power_supply/BAT1/capacity)
+	stat=$(cat /sys/class/power_supply/BAT1/status)
+	if [ $stat == "Charging" ]
+	then
+		icon='\uE1A3'
+	elif (($lvl > 20))
+	then
+		icon='\uE1A4'
+	else
+		icon='\uE19C'
+	fi
+
+	echo -e $icon$lvl'%'
+}
+
+# Networking
+network(){
+#	wired=$(ip route get 8.8.8.8 | grep -Po 'dev \K\w+' | grep -qFf - /proc/net/wireless)
+#	if $wired; then
+#		icon='\uE8C2'
+#		ssid=''
+#	else
+#		icon='\uE63E'
+#		ssid=$(iwgetid -r)
+#	fi
+#	echo -e $icon $ssid ' '
+        state=`cat /sys/class/net/wlp3s0/operstate`
+        if [[ $state == 'up' ]];then
+                icon='\uE1BA'
+        else
+                icon='\uE1DA'
+        fi
+#########need google material icons for less wifi bars
+#        ssid=$(grep wlp3s0 /proc/net/wireless | awk '{ print int($3 * 100 / 70)}')
+#		if [ $ssid > 70 ];then
+#        echo -e $icon $ssid ' '
+
+        echo -e $icon ' '
+}
+
+# Volume
+volume(){
+	vol=$(amixer get Master | grep % | sed -n 1p | awk -F '[' '{print $2}' | awk -F ']' '{print $1}' | sed s/%//)
+	if [ $vol = 0 ]; then
+		icon='\uE04F'
+	elif [ $vol -le 20 ]; then
+		icon='\uE04E'
+	elif [ $vol -le 60 ]; then
+		icon='\uE04D'
+	else
+		icon='\uE050'
+	fi
+
+	echo -e "%{A4:amixer -q set Master 5%+ && ${UPDATE}:}%{A5:amixer -q set Master 5%- && ${UPDATE}:} " $icon $vol'%' ' %{A}%{A}'
+}
+
+#Music
+music(){
+#	song=$(mpc current -f "%title% - %artist%")
+	song=$(mpc current -f "%title%")
+	if [ -z "$song" ]; then #if song tag empty
+		fil=$(mpc current -f '%file%')
+		song="${fil##*/}"
+		notify-send "$song" test test
+	fi
+#	song=$(echo $song | cut -d "(" -f 1) #cut out anything following a (
+	song+=" - "$(mpc current -f %artist%) #add the - artist bit
+	song='\uE405'" $song"
+	echo -e "$song"
+}
+
+#Player
+player(){
+	mpcstatus=$(mpc status | grep -E "(playing|paused)" -o)
+	progress=$(mpc status | grep -E "(playing|paused)" | rev | cut -c 3- | rev | cut -d "(" -f 2)
+	#progress is out of 100
+	#full=$((progress / 2))
+	length=65
+	#full is the bit of the song that's done
+	divisor=$(echo "100" $length | awk '{print $1 / $2 }')
+	#this makes it so the thing doesn't take 100 chars
+	full=$(echo $progress $divisor | awk '{print $1 / $2 }' | awk -F. '{print $1}')
+	#the last awk is to get only the integer part. dot is field separator
+	#shade is the bit that's not done
+	shade=$(($length - full))
+	if [ "$mpcstatus" == "playing" ]; then
+		icon='\uE034'
+	else
+		icon='\uE037'
+	fi
+	echo -e "%{B$COLOR_HIGHLIGHT F$COLOR_TEXT_HIGHLIGHT}%{A:mpc -q prev && ${UPDATE}:} \uE045%{A}%{A:mpc -q toggle && ${UPDATE}:}" $icon "%{A}%{A:mpc -q next && ${UPDATE}:}\uE044 %{A}%{B$COLOR_HIGHLIGHT F$COLOR_TEXT_HIGHLIGHT}"$(mpc status | grep -E "(playing|paused)" | awk '{ print $3 }') $(seq -s█ $full|tr -d '[:digit:]')$(seq -s▓ $shade|tr -d '[:digit:]')""
+
+}
+
+smallerplayer() {
+	mpcstatus=$(mpc status | grep -E "(playing|paused)" -o)
+	progress=$(mpc status | grep -E "(playing|paused)" | rev | cut -c 3- | rev | cut -d "(" -f 2)
+	#progress is out of 100
+	#full=$((progress / 2))
+	length=65
+	#full is the bit of the song that's done
+	divisor=$(echo "100" $length | awk '{print $1 / $2 }')
+	#this makes it so the thing doesn't take 100 chars
+	full=$(echo $progress $divisor | awk '{print $1 / $2 }' | awk -F. '{print $1}')
+	#the last awk is to get only the integer part. dot is field separator
+	#shade is the bit that's not done
+	shade=$(($length - full))
+	if [ "$mpcstatus" == "playing" ]; then
+		icon='\uE034'
+	else
+		icon='\uE037'
+	fi
+#removing some whitespace
+	echo -e "%{B$COLOR_HIGHLIGHT F$COLOR_TEXT_HIGHLIGHT}%{A:mpc -q toggle && ${UPDATE}:}" $icon " %{A}%{B-F-} $(seq -s▓ $full|tr -d '[:digit:]')$(seq -s░ $shade|tr -d '[:digit:]')"
+# note this shade char is lighter than above
+}
+
+#workspace plus one
+wsupone() {
+        current=`xdotool get_desktop`
+        next=$(($current+1))
+        xdotool set_desktop $next
+}
+
+#workspace minus
+wsdownone() {
+        current=`xdotool get_desktop`
+        next=$(($current-1))
+        xdotool set_desktop $next
+}
+
+# Workspace
+workspace() {
+	wslist=$(\
+		wmctrl -d \
+		| awk '/ / {print $2 $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20}' ORS=''\
+		| sed -e 's/\s*  //g' \
+		-e 's/\*[ 0-9A-Za-z]*[^ -~]*/\\uE3FA /g' \
+		-e 's/\-[ 0-9A-Za-z]*[^ -~]*/%{A:i3-msg workspace & \&\& \~\/scripts\/lemonbar\/update:}\\uE836 %{A}/g' \
+		-e 's/\*//g' \
+		-e 's/ -/ /g' \
+	)
+
+#        echo -e -n "%{A4:amixer -q set Master 5%+ && ${UPDATE}:}%{A5:amixer -q set Master 5%- && ${UPDATE}:} " $wslist ' %{A}%{A}'
+#	if (( $(wmctrl -d | wc -l) == 10)); then
+#		new=""
+#	else
+#		new=$(\
+#			wmctrl -d\
+#			| rev\
+#			| cut -c 1\
+#			| awk -v RS='\\s+' '{ a[$1] } END { for(i = 1; i in a; ++i); print i }'\
+#		)
+#		new="%{A:i3-msg workspace $new && ${UPDATE}:}\uE3BA%{A}"
+#	fi
+
+        #This is for GNOME i don't know why but theres a /A on the end
+        #fuck it, gnome doesn't need this list.
+        #revstring=$(echo $wslist|rev);echo ${revstring:1} | rev
+        #if you're here to fix it, good luck. - 17/07/2016
+
+        #this is the normal bit
+        echo -n -e " $wslist"
+}
+
+#Openbox workspaces
+obworkspace() {
+	#fixed at 4 so things are easier
+	#\uE836 is unfilled dot
+	#\uE3FA is filled dot
+#	wslist=$(\
+#		wmctrl -d \
+#		| awk '/ / {print $2 $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20}' ORS=''\
+#		| sed -e 's/\s*  //g' \
+#		-e 's/\*[ 0-9A-Za-z]*[^ -~]*/\\uE3FA /g' \
+#		-e 's/\-[ 0-9A-Za-z]*[^ -~]*/%{A:urxvt -e 'wmctrl -s 1' & \&\& \~\/scripts\/lemonbar\/update:}\\uE836 %{A}/g' \
+#		-e 's/\*//g' \
+#		-e 's/ -/ /g' \
+#	)
+wslist=$(wmctrl -d \
+                | awk '/ / {print $2, $11}'\
+				| sed '0,/4/s//3/' \
+				| sed '0,/3/s//2/' \
+				| sed '0,/2/s//1/' \
+				| sed '0,/1/s//0/' \
+                | sed -e 's/\s*  //g' \
+                -e 's/\*[ 0-9A-Za-z]*/\\uE3FA   /g' \
+                -e 's/\-[ 0-9A-Za-z]*/%{A:wmctrl -s & \&\& \~\/scripts\/lemonbar\/update:}\\uE836%{A}/g' \
+                -e 's/\*//g' \
+                -e 's/ \- //g'
+)
+wslist=$(echo ${wslist} | tr -d '\n')
+#wslist=$(echo ${wslist} | sed '0,/s4/s//s3/')
+#wslist=$(echo ${wslist} | sed '0,/s3/s//s2/')
+#wslist=$(echo ${wslist} | sed '0,/s2/s//s1/')
+#wslist=$(echo ${wslist} | sed '0,/s1/s//s0/')
+
+        #this is the normal bit
+#        echo -n -e " $wslist"
+        echo -n -e " $wslist"
+}
+
+title(){
+	title=$(xdotool getactivewindow getwindowname)
+	echo "$title" | cut -c 1-70
+}
